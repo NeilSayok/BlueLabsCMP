@@ -17,7 +17,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class BlogComponent(
-    val blog: BlogLoadedFields,
+    val blogUrl: String,
+    val blogState: Value<List<BlogLoadedFields?>>,
     private val navigateBack: () -> Unit,
     componentContext: ComponentContext,
 ) : ComponentContext by componentContext, KoinComponent {
@@ -28,6 +29,10 @@ class BlogComponent(
     private val _readmeContentState =
         MutableValue<Response<GithubResponse>>(Response.None)
     val readmeContentState: Value<Response<GithubResponse>> = _readmeContentState
+
+    // Computed property that reactively gets the blog from the state
+    val blog: BlogLoadedFields?
+        get() = blogState.value.firstOrNull { it?.urlStr?.stringValue == blogUrl }
 
     fun getBlogContent(fileName: String) {
         coroutineScope.launch {

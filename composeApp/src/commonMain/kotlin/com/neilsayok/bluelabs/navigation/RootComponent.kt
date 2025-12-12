@@ -150,17 +150,20 @@ class RootComponent(
             is Configuration.HomeScreen -> Child.Home(
                 HomeComponent(
                     componentContext = context,
-                    navigateBlogScreen = { id -> navigation.pushNew(Configuration.BlogScreen(id)) },
+                    navigateBlogScreen = { blog -> navigation.pushNew(Configuration.BlogScreen(blog.urlStr?.stringValue ?: "")) },
                     blogState = blogState,
                 )
             )
 
-            is Configuration.BlogScreen -> Child.Blog(
-                BlogComponent(
-                    blog = config.blog,
-                    componentContext = context,
-                    navigateBack = { navigation.pop() })
-            )
+            is Configuration.BlogScreen -> {
+                Child.Blog(
+                    BlogComponent(
+                        blogUrl = config.blogUrl,
+                        blogState = blogState,
+                        componentContext = context,
+                        navigateBack = { navigation.pop() })
+                )
+            }
 
             Configuration.EditorScreen -> Child.Editor(
                 EditorComponent(
@@ -190,7 +193,7 @@ class RootComponent(
                     index = indexListState,
                     blogState = blogState,
                     authorState = authorListState,
-                    navigateBlogScreen = { id -> navigation.pushNew(Configuration.BlogScreen(id)) },
+                    navigateBlogScreen = { blog -> navigation.pushNew(Configuration.BlogScreen(blog.urlStr?.stringValue ?: "")) },
                 )
             )
 
@@ -239,8 +242,8 @@ class RootComponent(
         data object PageNotFoundScreen : Configuration("/$PAGE_NOT_FOUND_PAGE")
 
         @Serializable
-        data class BlogScreen(val blog: BlogLoadedFields) :
-            Configuration("/$BLOG_PAGE/${blog.urlStr?.stringValue}")
+        data class BlogScreen(val blogUrl: String) :
+            Configuration("/$BLOG_PAGE/$blogUrl")
 
         @Serializable
         data class SearchScreen(val key: String) : Configuration("/$SEARCH_PAGE/$key")
@@ -267,11 +270,8 @@ class RootComponent(
             pathSegments.contains(PORTFOLIO_PAGE) -> Configuration.PortfolioScreen
 
             pathSegments.size == 2 && pathSegments[0] == BLOG_PAGE -> {
-                val id = pathSegments[1]
-                blogState.value.firstOrNull { it?.urlStr?.stringValue == id }?.let { blog ->
-                    Configuration.BlogScreen(blog)
-                }
-
+                val blogUrl = pathSegments[1]
+                Configuration.BlogScreen(blogUrl)
             }
 
             pathSegments.size == 2 && pathSegments[0] == SEARCH_PAGE -> {

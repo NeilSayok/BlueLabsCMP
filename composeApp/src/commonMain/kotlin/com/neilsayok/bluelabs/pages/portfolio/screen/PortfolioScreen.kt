@@ -41,6 +41,10 @@ fun PortfolioScreen(component: PortfolioComponent) {
     val projects = uiState.projectsFileContents.subscribeAsState()
     val jobs = uiState.jobsFileContents.subscribeAsState()
 
+    // Subscribe to API states to trigger recomposition
+    val jobsApiState by uiState.jobs.subscribeAsState()
+    val projectsApiState by uiState.projects.subscribeAsState()
+
     val scope = rememberCoroutineScope()
     val scrollState = rememberLazyListState()
 
@@ -75,7 +79,7 @@ fun PortfolioScreen(component: PortfolioComponent) {
     }
 
     LoaderScaffold(
-        calledApis = listOf(uiState.jobs, uiState.projects)
+        calledApis = listOf(jobsApiState, projectsApiState)
     ) { paddingValues ->
 
         LazyColumn(

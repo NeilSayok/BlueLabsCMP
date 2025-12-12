@@ -28,14 +28,14 @@ fun LoaderScaffold(
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    calledApis: List<MutableValue<out Response<Any>>>,
+    calledApis: List<Response<Any>>,
     content: @Composable ((PaddingValues) -> Unit),
 
     ) {
 
     val allApisDone = derivedStateOf {
         calledApis.all { api ->
-            when (api.value) {
+            when (api) {
                 is Response.Loading -> false
                 is Response.SuccessResponse -> true
                 is Response.ExceptionResponse -> true
@@ -46,7 +46,7 @@ fun LoaderScaffold(
 
     val hasError = derivedStateOf {
         calledApis.any { api ->
-            api.value is Response.ExceptionResponse
+            api is Response.ExceptionResponse
         }
     }
 
