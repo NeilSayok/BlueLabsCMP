@@ -19,7 +19,8 @@ fun AboutMe(onProjectClick : () -> Unit, onContactMeClick: () -> Unit) {
     val uriHandler = LocalUriHandler.current
 
     val fileId = "1iCpE7Fr72y9SwoZuKQqOVyEZg2MeREgoiKpEJ3BkN0Q"
-    val resume = "https://docs.google.com/document/d/${fileId}/export?format=pdf"
+//    val resume = "https://docs.google.com/document/d/${fileId}/export?format=pdf"
+    val resume = "https://neilsayok.github.io/imagelib/resume/Resume_Sayok_Dey_Majumder_Android_Developer.pdf"
     Column {
         TextWithNotoImageEmoji("Hey there \uD83D\uDC4B I’m an Android & Kotlin Multiplatform Developer who loves building fast, beautiful, and scalable apps using Jetpack Compose and Compose Multiplatform. I specialize in creating shared Kotlin codebases that power seamless experiences across Android, iOS, Desktop, and Web — with clean architecture, smooth animations, and pixel-perfect UI.\n" +
                 "\n" +
