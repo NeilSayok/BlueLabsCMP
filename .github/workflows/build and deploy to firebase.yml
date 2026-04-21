@@ -36,7 +36,7 @@ jobs:
           GIT_BASE_URL=${{ secrets.GIT_BASE_URL }}
           SHA_SECRET_KEY=${{ secrets.SHA_SECRET_KEY }}
           gpr.user=${{ secrets.GPRUSER }}
-          gpr.key=${{ secrets.GPRKEY }}
+          gpr.key=${{ secrets.GIT_TOKEN }}
           EOF
 
       - name: Build buildSrc

@@ -63,7 +63,7 @@ function fetchBlogs(firebaseUrl, apiKey) {
             const slug = fields.url_str?.stringValue
               || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
             const description = fields.description?.stringValue || title;
-            const image = fields.bigImg?.stringValue || '';
+            const image = fields.tiny_img?.stringValue || fields.big_img?.stringValue || "";
             blogs.push({ title, slug, description, image });
           }
           console.log(`   ✅ Fetched ${blogs.length} published blog posts`);
