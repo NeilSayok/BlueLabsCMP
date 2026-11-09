@@ -34,7 +34,7 @@ object SitemapGeneratorScript {
         outputFile.writeText(sitemap)
 
         println("✅ Sitemap generated successfully at: $outputPath")
-        println("📊 Total URLs: ${4 + blogData.size} (4 static + ${blogData.size} blogs)")
+        println("📊 Total URLs: ${5 + blogData.size} (5 static + ${blogData.size} blogs)")
     }
 
     private fun fetchBlogData(firebaseUrl: String, apiKey: String): List<BlogPost> {
@@ -130,6 +130,7 @@ object SitemapGeneratorScript {
             // Static pages
             appendUrl(baseUrl, today.toString(), "weekly", "1.0")
             appendUrl("$baseUrl/portfolio", today.toString(), "monthly", "0.9")
+            appendUrl("$baseUrl/me", today.toString(), "monthly", "0.7")
             appendUrl("$baseUrl/search", today.toString(), "daily", "0.7")
             appendUrl("$baseUrl/privacy-policy", today.toString(), "yearly", "0.3")
 

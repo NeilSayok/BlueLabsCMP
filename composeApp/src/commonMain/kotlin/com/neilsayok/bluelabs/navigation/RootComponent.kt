@@ -18,6 +18,7 @@ import com.arkivanov.decompose.value.Value
 import com.neilsayok.bluelabs.common.constants.BLOG_PAGE
 import com.neilsayok.bluelabs.common.constants.EDITOR_PAGE
 import com.neilsayok.bluelabs.common.constants.INDEXER_PAGE
+import com.neilsayok.bluelabs.common.constants.ME_PAGE
 import com.neilsayok.bluelabs.common.constants.PAGE_NOT_FOUND_PAGE
 import com.neilsayok.bluelabs.common.constants.PORTFOLIO_PAGE
 import com.neilsayok.bluelabs.common.constants.PRIVACY_POLICY_PAGE
@@ -38,6 +39,7 @@ import com.neilsayok.bluelabs.pages.editor.component.EditorComponent
 import com.neilsayok.bluelabs.pages.editor.component.PageNotFoundComponent
 import com.neilsayok.bluelabs.pages.home.component.HomeComponent
 import com.neilsayok.bluelabs.pages.indexer.component.IndexerComponent
+import com.neilsayok.bluelabs.pages.me.component.MeComponent
 import com.neilsayok.bluelabs.pages.portfolio.component.PortfolioComponent
 import com.neilsayok.bluelabs.pages.privacy.component.PrivacyPolicyComponent
 import com.neilsayok.bluelabs.pages.search.component.SearchComponent
@@ -180,6 +182,7 @@ class RootComponent(
                 )
             )
             Configuration.PortfolioScreen -> Child.Portfolio(PortfolioComponent(componentContext = context))
+            Configuration.MeScreen -> Child.Me(MeComponent(componentContext = context))
             Configuration.PrivacyPolicyScreen -> Child.PrivacyPolicy(
                 PrivacyPolicyComponent(
                     componentContext = context
@@ -215,6 +218,7 @@ class RootComponent(
         class Editor(val component: EditorComponent) : Child()
         class Indexer(val component: IndexerComponent) : Child()
         class Portfolio(val component: PortfolioComponent) : Child()
+        class Me(val component: MeComponent) : Child()
         class PrivacyPolicy(val component: PrivacyPolicyComponent) : Child()
         class Search(val component: SearchComponent) : Child()
         class PageNotFound(val component: PageNotFoundComponent) : Child()
@@ -237,6 +241,9 @@ class RootComponent(
 
         @Serializable
         data object PortfolioScreen : Configuration("/$PORTFOLIO_PAGE")
+
+        @Serializable
+        data object MeScreen : Configuration("/$ME_PAGE")
 
         @Serializable
         data object PageNotFoundScreen : Configuration("/$PAGE_NOT_FOUND_PAGE")
@@ -264,6 +271,7 @@ class RootComponent(
 
         return when {
             pathSegments.isEmpty() -> Configuration.HomeScreen
+            pathSegments.singleOrNull() == ME_PAGE -> Configuration.MeScreen
             pathSegments.contains(EDITOR_PAGE) -> Configuration.EditorScreen
             pathSegments.contains(INDEXER_PAGE) -> Configuration.IndexerScreen
             pathSegments.contains(PRIVACY_POLICY_PAGE) -> Configuration.PrivacyPolicyScreen

@@ -30,6 +30,7 @@ import com.neilsayok.bluelabs.pages.editor.screen.EditorScreen
 import com.neilsayok.bluelabs.pages.pagenotfound.screen.PageNotFoundScreen
 import com.neilsayok.bluelabs.pages.home.screen.HomeScreen
 import com.neilsayok.bluelabs.pages.indexer.screen.IndexerScreen
+import com.neilsayok.bluelabs.pages.me.screen.MeScreen
 import com.neilsayok.bluelabs.pages.portfolio.screen.PortfolioScreen
 import com.neilsayok.bluelabs.pages.privacy.screen.PrivacyPolicyScreen
 import com.neilsayok.bluelabs.pages.search.screen.SearchScreen
@@ -108,7 +109,7 @@ fun App(root: RootComponent) {
     }
     BlueLabsTheme(darkTheme = isDark) {
         LoaderScaffold(
-            isLoading = isLoading,
+            isLoading = isLoading && currentScreen != RootComponent.Configuration.MeScreen,
             snackbarHost = {
                 SnackbarHost(
                     hostState = snackBarState,
@@ -138,6 +139,7 @@ fun App(root: RootComponent) {
                         is RootComponent.Child.Editor -> EditorScreen(instance.component)
                         is RootComponent.Child.Indexer -> IndexerScreen(instance.component)
                         is RootComponent.Child.Portfolio -> PortfolioScreen(instance.component)
+                        is RootComponent.Child.Me -> MeScreen(instance.component)
                         is RootComponent.Child.PrivacyPolicy -> PrivacyPolicyScreen(instance.component)
                         is RootComponent.Child.Search -> SearchScreen(instance.component)
                         is RootComponent.Child.PageNotFound -> PageNotFoundScreen(instance.component)

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.neilsayok.bluelabs.BuildKonfig
 import com.neilsayok.bluelabs.common.ui.components.LoaderScaffold
+import com.neilsayok.bluelabs.data.bloglist.BlogLoadedFields
 import com.neilsayok.bluelabs.pages.home.component.HomeComponent
 import com.neilsayok.bluelabs.pages.home.widgets.HomeCard
 import com.neilsayok.bluelabs.util.setMetaTag
@@ -27,7 +28,7 @@ import com.neilsayok.bluelabs.util.setTwitterCardTags
 @Composable
 fun HomeScreen(component: HomeComponent) {
     val blogListState by component.blogState.subscribeAsState()
-    val state = blogListState
+    val state = blogListState.sortedBy { it?.title?.stringValue }
 
     val snackBarHostState = remember { SnackbarHostState() }
 

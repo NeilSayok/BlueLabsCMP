@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-09T14:49:12Z",
+  "title": "Design System: Blue Labs /me",
+  "extensions": {},
+  "components": [{
+    "name": "Personal link tonal button",
+    "kind": "button",
+    "description": "Native Compose Material 3 FilledTonalButton; no HTML/CSS preview is provided."
+  }],
+  "narrative": {
+    "overview": "The page inherits Blue Labs' Material 3 components, Poppins typography, and light/dark themes. This records the implemented surface only; it establishes no global design rules.",
+    "dos": ["Do preserve the existing theme and supplied destinations."],
+    "donts": ["Don't introduce a new visual identity for this surface."]
+  }
+}
