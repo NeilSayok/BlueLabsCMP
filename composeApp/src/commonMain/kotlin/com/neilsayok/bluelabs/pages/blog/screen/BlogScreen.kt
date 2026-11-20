@@ -12,6 +12,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.neilsayok.bluelabs.BuildKonfig
 import com.neilsayok.bluelabs.common.constants.BLOG_PAGE
 import com.neilsayok.bluelabs.common.ui.components.LoaderScaffold
+import com.neilsayok.bluelabs.common.ui.EditorialFooter
 import com.neilsayok.bluelabs.pages.blog.component.BlogComponent
 import com.neilsayok.bluelabs.pages.blog.widgets.BlogCard
 import com.neilsayok.bluelabs.util.Platform
@@ -62,6 +63,7 @@ fun BlogScreen(component: BlogComponent) {
                     BlogCard(it, component)
                 }
             }
+            item { EditorialFooter() }
         }
 
 

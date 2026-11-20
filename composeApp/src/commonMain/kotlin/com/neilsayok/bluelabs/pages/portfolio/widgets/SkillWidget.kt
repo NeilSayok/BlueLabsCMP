@@ -1,49 +1,33 @@
 package com.neilsayok.bluelabs.pages.portfolio.widgets
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Card
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun SkillWidget() {
-
-    val skillList = mapOf(
-        "Android" to 5,
-        "Kotlin" to 5,
-        "Java" to 4,
-        "Jetpack Compose" to 5,
-    )
-
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        skillList.forEach { (skill, level) ->
-            FilterChip(
-                selected = true,
-                onClick = {},
-                label = { Text(skill) },
-                trailingIcon = {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Skill Level"
-                        )
-                        Text("$level")
-                    }
-                }
-
-
-            )
+    val skills = listOf("Android" to 5, "Kotlin" to 5, "Java" to 4, "Jetpack Compose" to 5)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        skills.forEach { (skill, level) ->
+            Row(
+                Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = 18.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(skill)
+                Text("$level / 5", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
-
-
 }

@@ -1,39 +1,36 @@
 package com.neilsayok.bluelabs.pages.editor.screen
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.NorthEast
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -50,515 +47,240 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.neilsayok.bluelabs.common.ui.EditorialFooter
 import com.neilsayok.bluelabs.domain.util.Response
 import com.neilsayok.bluelabs.pages.editor.component.EditorComponent
+import com.neilsayok.bluelabs.pages.editor.component.state.EditorState
 import com.neilsayok.bluelabs.pages.editor.component.state.ValidationError
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorScreen(component: EditorComponent) {
     val state by component.uiState.subscribeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        rememberStandardBottomSheetState(skipHiddenState = false)
-    )
-    
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberBottomSheetScaffoldState(rememberStandardBottomSheetState(skipHiddenState = false))
     var password by remember { mutableStateOf("") }
-    var tagInput by remember { mutableStateOf("") }
-    var genreExpanded by remember { mutableStateOf(false) }
-    var authorExpanded by remember { mutableStateOf(false) }
-    
-    // Handle snackbar messages
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(snackbarMessage) {
-        snackbarMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            snackbarMessage = null
-        }
+        snackbarMessage?.let { snackbarHostState.showSnackbar(it); snackbarMessage = null }
     }
-
     BottomSheetScaffold(
-        scaffoldState = bottomSheetScaffoldState,
+        scaffoldState = sheetState,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         sheetPeekHeight = 0.dp,
         sheetContent = {
-            // Password Bottom Sheet
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Submit Blog",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Text("Please enter your password to submit the blog:")
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    TextButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.hide()
-                                password = ""
+            Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                Text("Submit blog", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text("Enter your author password to continue.")
+                OutlinedTextField(password, { password = it }, label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    TextButton(onClick = { scope.launch { sheetState.bottomSheetState.hide(); password = "" } },
+                        modifier = Modifier.weight(1f)) { Text("Cancel") }
+                    Button(onClick = {
+                        scope.launch {
+                            component.submitBlog(password) { success, message ->
+                                snackbarMessage = message
+                                if (success) password = ""
                             }
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Cancel")
-                    }
-                    
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                component.submitBlog(password) { success, message ->
-                                    snackbarMessage = message
-                                    if (success) {
-                                        password = ""
-                                    }
-                                }
-                                bottomSheetScaffoldState.bottomSheetState.hide()
-                            }
-                        },
-                        enabled = password.isNotBlank() && !state.isSubmitting,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        if (state.isSubmitting) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Text("Submit")
+                            sheetState.bottomSheetState.hide()
                         }
+                    }, enabled = password.isNotBlank() && !state.isSubmitting,
+                        shape = RectangleShape, modifier = Modifier.weight(1f)) {
+                        if (state.isSubmitting) CircularProgressIndicator(Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary)
+                        else Text("Submit")
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     ) { paddingValues ->
-        
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Loading editor data...")
+        BoxWithConstraints(Modifier.fillMaxSize().padding(paddingValues)) {
+            val compact = maxWidth < 900.dp
+            val horizontal = if (compact) 20.dp else 64.dp
+            LazyColumn(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                item {
+                    Column(Modifier.widthIn(max = 1228.dp).fillMaxWidth()
+                        .padding(horizontal = horizontal, vertical = 42.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text("Create a blog", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Medium)
+                        Text("Add the details for your next article.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                item {
+                    if (state.isLoading) {
+                        Column(Modifier.widthIn(max = 1100.dp).fillMaxWidth().padding(horizontal = horizontal)
+                            .background(MaterialTheme.colorScheme.surface).padding(28.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            CircularProgressIndicator()
+                            Text("Loading editor data…")
+                        }
+                    } else {
+                        val form: @Composable () -> Unit = {
+                            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(if (compact) 22.dp else 28.dp),
+                                verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                                Text("Article details", style = MaterialTheme.typography.headlineSmall)
+                                Text("All fields marked with * are mandatory", style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                EditorForm(component, state)
+                                Button(onClick = { scope.launch { sheetState.bottomSheetState.expand() } },
+                                    enabled = !state.isSubmitting && state.validationErrors.isEmpty(),
+                                    shape = RectangleShape) {
+                                    Text("Submit blog")
+                                    Icon(Icons.Default.NorthEast, null, Modifier.padding(start = 8.dp))
+                                }
+                                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                            }
+                        }
+                        val preview: @Composable () -> Unit = {
+                            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(if (compact) 22.dp else 28.dp),
+                                verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                                Text("Article preview", style = MaterialTheme.typography.headlineSmall)
+                                EditorPreview(component, state)
+                            }
+                        }
+                        if (compact) {
+                            Column(Modifier.widthIn(max = 1228.dp).fillMaxWidth().padding(horizontal = horizontal),
+                                verticalArrangement = Arrangement.spacedBy(24.dp)) { form(); preview() }
+                        } else {
+                            Row(Modifier.widthIn(max = 1228.dp).fillMaxWidth().padding(horizontal = horizontal),
+                                horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                Column(Modifier.weight(7f)) { form() }
+                                Column(Modifier.weight(4f)) { preview() }
+                            }
+                        }
+                    }
+                }
+                item { Column(Modifier.padding(top = 90.dp)) { EditorialFooter() } }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditorForm(component: EditorComponent, state: EditorState) {
+    var genreExpanded by remember { mutableStateOf(false) }
+    var authorExpanded by remember { mutableStateOf(false) }
+    var tagInput by remember { mutableStateOf("") }
+    val form = state.formData
+    val genres = (state.genreResponse as? Response.SuccessResponse)?.data?.documents ?: emptyList()
+    val authors = (state.authorResponse as? Response.SuccessResponse)?.data?.documents ?: emptyList()
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        ExposedDropdownMenuBox(expanded = genreExpanded, onExpandedChange = { genreExpanded = !genreExpanded }) {
+            OutlinedTextField(
+                value = genres.find { it?.name?.substringAfterLast("/") == form.selectedGenre }?.fields?.type?.stringValue ?: "",
+                onValueChange = {}, readOnly = true, label = { Text("Genre *") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(genreExpanded) },
+                isError = ValidationError.GENRE_EMPTY in state.validationErrors,
+                supportingText = if (ValidationError.GENRE_EMPTY in state.validationErrors) {{ Text("Genre is required") }} else null,
+                modifier = Modifier.fillMaxWidth().menuAnchor()
+            )
+            ExposedDropdownMenu(expanded = genreExpanded, onDismissRequest = { genreExpanded = false }) {
+                genres.forEach { genre -> genre?.let {
+                    val id = it.name?.substringAfterLast("/") ?: ""
+                    DropdownMenuItem(text = { Text(it.fields?.type?.stringValue ?: "") }, onClick = {
+                        component.updateFormData(form.copy(selectedGenre = id)); genreExpanded = false
+                    })
+                } }
+            }
+        }
+        ExposedDropdownMenuBox(expanded = authorExpanded, onExpandedChange = { authorExpanded = !authorExpanded }) {
+            OutlinedTextField(
+                value = authors.find { it?.name?.substringAfterLast("/") == form.selectedAuthor }?.fields?.name?.stringValue ?: "",
+                onValueChange = {}, readOnly = true, label = { Text("Author *") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(authorExpanded) },
+                isError = ValidationError.AUTHOR_EMPTY in state.validationErrors,
+                supportingText = if (ValidationError.AUTHOR_EMPTY in state.validationErrors) {{ Text("Author is required") }} else null,
+                modifier = Modifier.fillMaxWidth().menuAnchor()
+            )
+            ExposedDropdownMenu(expanded = authorExpanded, onDismissRequest = { authorExpanded = false }) {
+                authors.forEach { author -> author?.let {
+                    val id = it.name?.substringAfterLast("/") ?: ""
+                    DropdownMenuItem(text = { Text("${it.fields?.name?.stringValue ?: ""} (${it.fields?.uid?.stringValue ?: ""})") },
+                        onClick = { component.updateFormData(form.copy(selectedAuthor = id)); authorExpanded = false })
+                } }
+            }
+        }
+        OutlinedTextField(form.title, { if (it.length <= 2000) component.updateFormData(form.copy(title = it)) },
+            label = { Text("Title *") }, placeholder = { Text("Give your article a title") },
+            isError = ValidationError.TITLE_EMPTY in state.validationErrors || ValidationError.TITLE_TOO_LONG in state.validationErrors,
+            supportingText = { Text("${2000 - form.title.length} characters available") },
+            modifier = Modifier.fillMaxWidth())
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(tagInput, { tagInput = it }, label = { Text("Tags *") },
+                placeholder = { Text("Type a tag and press Enter") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    if (tagInput.isNotBlank()) { component.addTag(tagInput.trim()); tagInput = "" }
+                }),
+                isError = ValidationError.TAGS_EMPTY in state.validationErrors || ValidationError.TAGS_TOO_MANY in state.validationErrors,
+                supportingText = { Text("At least one tag, up to four. Tap a tag to remove it.") },
+                modifier = Modifier.fillMaxWidth())
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                form.tags.forEachIndexed { index, tag ->
+                    AssistChip(onClick = { component.removeTag(index) }, label = { Text(tag) },
+                        trailingIcon = { Icon(Icons.Default.Close, "Remove $tag", Modifier.size(16.dp)) })
                 }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item {
-                    Text(
-                        text = "Blog Editor",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "All fields marked with * are mandatory",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+        }
+        OutlinedTextField(form.tinyImageUrl, { component.updateFormData(form.copy(tinyImageUrl = it)) },
+            label = { Text("Small image URL *") }, modifier = Modifier.fillMaxWidth(),
+            isError = ValidationError.TINY_IMAGE_URL_EMPTY in state.validationErrors)
+        OutlinedTextField(form.bigImageUrl, { component.updateFormData(form.copy(bigImageUrl = it)) },
+            label = { Text("Header image URL *") }, modifier = Modifier.fillMaxWidth(),
+            isError = ValidationError.BIG_IMAGE_URL_EMPTY in state.validationErrors)
+        OutlinedTextField(form.mdFileName, { fileName ->
+            component.updateFormData(form.copy(mdFileName = fileName))
+            if (fileName.endsWith(".md")) component.loadMarkdownFromFile(fileName)
+        }, label = { Text("Markdown file name *") },
+            supportingText = { Text(if (form.markdownContent.isNotBlank()) "Markdown loaded" else "A .md file loads content from GitHub.") },
+            isError = ValidationError.MD_FILE_EMPTY in state.validationErrors,
+            modifier = Modifier.fillMaxWidth())
+        if (form.markdownContent.isNotBlank()) {
+            Text("${component.calculateReadTime(form.markdownContent)} min read",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
 
-                // Genre Selection
-                item {
-                    val genres = (state.genreResponse as? Response.SuccessResponse)?.data?.documents ?: emptyList()
-                    
-                    ExposedDropdownMenuBox(
-                        expanded = genreExpanded,
-                        onExpandedChange = { genreExpanded = !genreExpanded }
-                    ) {
-                        OutlinedTextField(
-                            value = genres.find { it?.name?.substringAfterLast("/") == state.formData.selectedGenre }?.fields?.type?.stringValue ?: "",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Genre *") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genreExpanded) },
-                            isError = ValidationError.GENRE_EMPTY in state.validationErrors,
-                            supportingText = if (ValidationError.GENRE_EMPTY in state.validationErrors) {
-                                { Text("Genre is required") }
-                            } else null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor()
-                        )
-                        
-                        ExposedDropdownMenu(
-                            expanded = genreExpanded,
-                            onDismissRequest = { genreExpanded = false }
-                        ) {
-                            genres.forEach { genre ->
-                                genre?.let {
-                                    val genreId = it.name?.substringAfterLast("/") ?: ""
-                                    val genreType = it.fields?.type?.stringValue ?: ""
-                                    
-                                    DropdownMenuItem(
-                                        text = { Text(genreType) },
-                                        onClick = {
-                                            component.updateFormData(
-                                                state.formData.copy(selectedGenre = genreId)
-                                            )
-                                            genreExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Image URLs
-                item {
-                    OutlinedTextField(
-                        value = state.formData.tinyImageUrl,
-                        onValueChange = { 
-                            component.updateFormData(
-                                state.formData.copy(tinyImageUrl = it)
-                            )
-                        },
-                        label = { Text("Small Image URL *") },
-                        isError = ValidationError.TINY_IMAGE_URL_EMPTY in state.validationErrors,
-                        supportingText = if (ValidationError.TINY_IMAGE_URL_EMPTY in state.validationErrors) {
-                            { Text("Small image URL is required") }
-                        } else null,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                
-                item {
-                    OutlinedTextField(
-                        value = state.formData.bigImageUrl,
-                        onValueChange = { 
-                            component.updateFormData(
-                                state.formData.copy(bigImageUrl = it)
-                            )
-                        },
-                        label = { Text("Header Image URL *") },
-                        isError = ValidationError.BIG_IMAGE_URL_EMPTY in state.validationErrors,
-                        supportingText = if (ValidationError.BIG_IMAGE_URL_EMPTY in state.validationErrors) {
-                            { Text("Header image URL is required") }
-                        } else null,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                // Title
-                item {
-                    OutlinedTextField(
-                        value = state.formData.title,
-                        onValueChange = { 
-                            if (it.length <= 2000) {
-                                component.updateFormData(
-                                    state.formData.copy(title = it)
-                                )
-                            }
-                        },
-                        label = { Text("Title *") },
-                        isError = ValidationError.TITLE_EMPTY in state.validationErrors || 
-                                 ValidationError.TITLE_TOO_LONG in state.validationErrors,
-                        supportingText = {
-                            when {
-                                ValidationError.TITLE_EMPTY in state.validationErrors -> 
-                                    Text("Title is required")
-                                ValidationError.TITLE_TOO_LONG in state.validationErrors -> 
-                                    Text("Title is too long")
-                                else -> Text("Characters left: ${2000 - state.formData.title.length}")
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                // Tags
-                item {
-                    Column {
-                        OutlinedTextField(
-                            value = tagInput,
-                            onValueChange = { tagInput = it },
-                            label = { Text("Tags (Press Enter to add) *") },
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    if (tagInput.isNotBlank()) {
-                                        component.addTag(tagInput.trim())
-                                        tagInput = ""
-                                    }
-                                }
-                            ),
-                            isError = ValidationError.TAGS_EMPTY in state.validationErrors ||
-                                     ValidationError.TAGS_TOO_MANY in state.validationErrors,
-                            supportingText = {
-                                when {
-                                    ValidationError.TAGS_EMPTY in state.validationErrors -> 
-                                        Text("At least one tag is required")
-                                    ValidationError.TAGS_TOO_MANY in state.validationErrors -> 
-                                        Text("Maximum 4 tags allowed")
-                                    else -> Text("Minimum 1, Maximum 4 tags")
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            state.formData.tags.forEachIndexed { index, tag ->
-                                AssistChip(
-                                    onClick = { component.removeTag(index) },
-                                    label = { Text(tag) },
-                                    trailingIcon = {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            contentDescription = "Remove tag",
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Markdown File
-                item {
-                    OutlinedTextField(
-                        value = state.formData.mdFileName,
-                        onValueChange = { fileName ->
-                            component.updateFormData(
-                                state.formData.copy(mdFileName = fileName)
-                            )
-                            if (fileName.endsWith(".md")) {
-                                component.loadMarkdownFromFile(fileName)
-                            }
-                        },
-                        label = { Text("Markdown File Name *") },
-                        isError = ValidationError.MD_FILE_EMPTY in state.validationErrors,
-                        supportingText = if (ValidationError.MD_FILE_EMPTY in state.validationErrors) {
-                            { Text("Markdown file name is required") }
-                        } else { 
-                            { Text("Enter filename ending with .md to auto-load content") }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                // Author Selection
-                item {
-                    val authors = (state.authorResponse as? Response.SuccessResponse)?.data?.documents ?: emptyList()
-                    
-                    ExposedDropdownMenuBox(
-                        expanded = authorExpanded,
-                        onExpandedChange = { authorExpanded = !authorExpanded }
-                    ) {
-                        OutlinedTextField(
-                            value = authors.find { it?.name?.substringAfterLast("/") == state.formData.selectedAuthor }?.let { author ->
-                                "${author.fields?.name?.stringValue ?: ""} (${author.fields?.uid?.stringValue ?: ""})"
-                            } ?: "",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Author *") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = authorExpanded) },
-                            isError = ValidationError.AUTHOR_EMPTY in state.validationErrors,
-                            supportingText = if (ValidationError.AUTHOR_EMPTY in state.validationErrors) {
-                                { Text("Author is required") }
-                            } else null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor()
-                        )
-                        
-                        ExposedDropdownMenu(
-                            expanded = authorExpanded,
-                            onDismissRequest = { authorExpanded = false }
-                        ) {
-                            authors.forEach { author ->
-                                author?.let {
-                                    val authorId = it.name?.substringAfterLast("/") ?: ""
-                                    val authorName = it.fields?.name?.stringValue ?: ""
-                                    val authorUid = it.fields?.uid?.stringValue ?: ""
-                                    
-                                    DropdownMenuItem(
-                                        text = { Text("$authorName ($authorUid)") },
-                                        onClick = {
-                                            component.updateFormData(
-                                                state.formData.copy(selectedAuthor = authorId)
-                                            )
-                                            authorExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Read Time Display
-                if (state.formData.markdownContent.isNotBlank()) {
-                    item {
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        ) {
-                            Text(
-                                text = "Read Time: ${component.calculateReadTime(state.formData.markdownContent)} mins",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-                    }
-                }
-
-                // Preview Section
-                if (state.formData.tinyImageUrl.isNotBlank() || state.formData.bigImageUrl.isNotBlank()) {
-                    item {
-                        Text(
-                            text = "Preview",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                // Small Image Preview
-                if (state.formData.tinyImageUrl.isNotBlank()) {
-                    item {
-                        Text("Small Image Preview:")
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        ) {
-                            repeat(3) { index ->
-                                Card(
-                                    modifier = Modifier.size(80.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = Color.Gray.copy(alpha = 0.1f)
-                                    )
-                                ) {
-                                    AsyncImage(
-                                        model = state.formData.tinyImageUrl,
-                                        contentDescription = "Small image preview",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Big Image Preview
-                if (state.formData.bigImageUrl.isNotBlank()) {
-                    item {
-                        AsyncImage(
-                            model = state.formData.bigImageUrl,
-                            contentDescription = "Header image preview",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                        )
-                    }
-                }
-
-                // Title Preview
-                if (state.formData.title.isNotBlank()) {
-                    item {
-                        Text(
-                            text = state.formData.title,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                // Tags Preview
-                if (state.formData.tags.isNotEmpty()) {
-                    item {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            state.formData.tags.forEach { tag ->
-                                AssistChip(
-                                    onClick = { },
-                                    label = { Text(tag) }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Submit Button
-                item {
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.expand()
-                            }
-                        },
-                        enabled = !state.isSubmitting && state.validationErrors.isEmpty(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp)
-                    ) {
-                        Text("Submit Blog")
-                    }
-                }
-                
-                // Spacer for bottom padding
-                item {
-                    Spacer(modifier = Modifier.height(32.dp))
-                }
+@Composable
+private fun EditorPreview(component: EditorComponent, state: EditorState) {
+    val form = state.formData
+    Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Box(Modifier.fillMaxWidth().height(170.dp).background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.BottomStart) {
+            if (form.bigImageUrl.isNotBlank()) {
+                AsyncImage(form.bigImageUrl, contentDescription = "Header image preview",
+                    contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            } else {
+                Text("Blue Labs", modifier = Modifier.padding(20.dp), fontSize = 38.sp,
+                    fontWeight = FontWeight.Bold)
             }
+        }
+        Text(form.title.ifBlank { "Your article title" }, style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold)
+        Text("Sayok Dey Majumder", style = MaterialTheme.typography.bodySmall)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            form.tags.forEach { tag -> Text(tag, modifier = Modifier.background(MaterialTheme.colorScheme.surface).padding(6.dp),
+                style = MaterialTheme.typography.labelSmall) }
+        }
+        Text(if (form.markdownContent.isNotBlank()) "${component.calculateReadTime(form.markdownContent)} min read"
+            else "Reading time appears after Markdown loads.", style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (form.tinyImageUrl.isNotBlank()) {
+            AsyncImage(form.tinyImageUrl, contentDescription = "Small image preview",
+                contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp))
         }
     }
 }

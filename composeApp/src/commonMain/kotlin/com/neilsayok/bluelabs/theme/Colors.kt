@@ -10,101 +10,79 @@ val CODE_BLOCK_BACKGROUND_COLOR = Color(0xFF282A35)
 // ColorTokens.kt
 
 object ColorLightTokens {
-    val Primary = Color(0xFF1E90FF)
+    val Primary = Color(0xFF0759D3)
     val OnPrimary = Color.White
-    val PrimaryContainer = Color(0xFFD0E9FF)
-    val OnPrimaryContainer = Color(0xFF002B45)
-    val InversePrimary = Color(0xFF00BFFF)
-
-    val Secondary = Color(0xFF87CEFA)
-    val OnSecondary = Color.Black
-    val SecondaryContainer = Color(0xFFDDF3FF)
-    val OnSecondaryContainer = Color(0xFF002C3E)
-
-    val Tertiary = Color(0xFF7D3C98) // Accent: links, badges
+    val PrimaryContainer = Color(0xFFD8E8FF)
+    val OnPrimaryContainer = Color(0xFF172431)
+    val InversePrimary = Color(0xFF8BB8FF)
+    val Secondary = Color(0xFFDDECE9)
+    val OnSecondary = Color(0xFF163E36)
+    val SecondaryContainer = Color(0xFFDDECE9)
+    val OnSecondaryContainer = Color(0xFF163E36)
+    val Tertiary = Color(0xFF0759D3)
     val OnTertiary = Color.White
-    val TertiaryContainer = Color(0xFFF1E1FF)
-    val OnTertiaryContainer = Color(0xFF3D0056)
-
-    val Background = Color(0xFFF0F8FF)
-    val OnBackground = Color(0xFF2E2E2E)
-
-    val Surface = Color(0xFFE3F2FD)
-    val OnSurface = Color(0xFF2E2E2E)
-
-    val SurfaceVariant = Color(0xFFD3D3D3)
-    val OnSurfaceVariant = Color(0xFF3A3A3A)
-
-    val InverseSurface = Color(0xFF2E2E2E)
+    val TertiaryContainer = Color(0xFFD8E8FF)
+    val OnTertiaryContainer = Color(0xFF172431)
+    val Background = Color(0xFFF7F9FC)
+    val OnBackground = Color(0xFF172431)
+    val Surface = Color.White
+    val OnSurface = Color(0xFF172431)
+    val SurfaceVariant = Color(0xFFEDF2F8)
+    val OnSurfaceVariant = Color(0xFF526171)
+    val InverseSurface = Color(0xFF172431)
     val InverseOnSurface = Color.White
-
-    val Error = Color(0xFFFF7F50) // Notification banners
+    val Error = Color(0xFFA32228)
     val OnError = Color.White
     val ErrorContainer = Color(0xFFFFDAD4)
     val OnErrorContainer = Color(0xFF410001)
-
-    val Outline = Color(0xFFB0B0B0)
-    val OutlineVariant = Color(0xFFD3D3D3)
-
+    val Outline = Color(0xFFC9D2DE)
+    val OutlineVariant = Color(0xFFDFE5EE)
     val Scrim = Color(0x66000000)
-
-    val SurfaceBright = Color(0xFFF7F9FB)
-    val SurfaceDim = Color(0xFFE8EDF1)
-
-    val SurfaceContainer = Color(0xFFE3F2FD)
-    val SurfaceContainerLowest = Color(0xFFFFFFFF)
-    val SurfaceContainerLow = Color(0xFFF2F9FF)
-    val SurfaceContainerHigh = Color(0xFFD3E8FB)
-    val SurfaceContainerHighest = Color(0xFFC2DEF7)
+    val SurfaceBright = Color.White
+    val SurfaceDim = Color(0xFFEDF2F8)
+    val SurfaceContainer = Color(0xFFEDF2F8)
+    val SurfaceContainerLowest = Color.White
+    val SurfaceContainerLow = Color(0xFFF7F9FC)
+    val SurfaceContainerHigh = Color(0xFFE5ECF5)
+    val SurfaceContainerHighest = Color(0xFFD8E8FF)
 }
 
 object ColorDarkTokens {
-    val Primary = Color(0xFF1E90FF)
-    val OnPrimary = Color.Black
-    val PrimaryContainer = Color(0xFF004A77)
-    val OnPrimaryContainer = Color(0xFFD0E9FF)
-    val InversePrimary = Color(0xFF87CEFA)
-
-    val Secondary = Color(0xFF00BFFF)
-    val OnSecondary = Color.Black
-    val SecondaryContainer = Color(0xFF00374C)
-    val OnSecondaryContainer = Color(0xFFB5EBFF)
-
-    val Tertiary = Color(0xFF8A2BE2)
-    val OnTertiary = Color.White
-    val TertiaryContainer = Color(0xFF3C006A)
-    val OnTertiaryContainer = Color(0xFFE9D1FF)
-
-    val Background = Color(0xFF121212)
-    val OnBackground = Color(0xFFE0E0E0)
-
-    val Surface = Color(0xFF1A1A2E)
-    val OnSurface = Color(0xFFE0E0E0)
-
-    val SurfaceVariant = Color(0xFFB0B0B0)
-    val OnSurfaceVariant = Color(0xFF2A2A2A)
-
-    val InverseSurface = Color(0xFFE0E0E0)
-    val InverseOnSurface = Color(0xFF121212)
-
-    val Error = Color(0xFFFF6347)
-    val OnError = Color.Black
+    val Primary = Color(0xFF8BB8FF)
+    val OnPrimary = Color(0xFF111214)
+    val PrimaryContainer = Color(0xFF172B47)
+    val OnPrimaryContainer = Color(0xFFF1F3F5)
+    val InversePrimary = Color(0xFF0759D3)
+    val Secondary = Color(0xFF163E36)
+    val OnSecondary = Color(0xFFF1F3F5)
+    val SecondaryContainer = Color(0xFF163E36)
+    val OnSecondaryContainer = Color(0xFFF1F3F5)
+    val Tertiary = Color(0xFF8BB8FF)
+    val OnTertiary = Color(0xFF111214)
+    val TertiaryContainer = Color(0xFF172B47)
+    val OnTertiaryContainer = Color(0xFFF1F3F5)
+    val Background = Color(0xFF111214)
+    val OnBackground = Color(0xFFF1F3F5)
+    val Surface = Color(0xFF15171A)
+    val OnSurface = Color(0xFFF1F3F5)
+    val SurfaceVariant = Color(0xFF1C1E22)
+    val OnSurfaceVariant = Color(0xFFAEB7C3)
+    val InverseSurface = Color(0xFFF1F3F5)
+    val InverseOnSurface = Color(0xFF111214)
+    val Error = Color(0xFFFFB3B3)
+    val OnError = Color(0xFF111214)
     val ErrorContainer = Color(0xFF93000A)
     val OnErrorContainer = Color(0xFFFFDAD4)
-
-    val Outline = Color(0xFF888888)
-    val OutlineVariant = Color(0xFF666666)
-
+    val Outline = Color(0xFF414750)
+    val OutlineVariant = Color(0xFF32373E)
     val Scrim = Color(0x88000000)
-
-    val SurfaceBright = Color(0xFF1F1F2F)
-    val SurfaceDim = Color(0xFF10101A)
-
-    val SurfaceContainer = Color(0xFF1A1A2E)
-    val SurfaceContainerLowest = Color(0xFF0D0D14)
-    val SurfaceContainerLow = Color(0xFF141421)
-    val SurfaceContainerHigh = Color(0xFF232340)
-    val SurfaceContainerHighest = Color(0xFF2E2E5A)
+    val SurfaceBright = Color(0xFF1C1E22)
+    val SurfaceDim = Color(0xFF111214)
+    val SurfaceContainer = Color(0xFF1C1E22)
+    val SurfaceContainerLowest = Color(0xFF111214)
+    val SurfaceContainerLow = Color(0xFF15171A)
+    val SurfaceContainerHigh = Color(0xFF25282D)
+    val SurfaceContainerHighest = Color(0xFF172B47)
 }
 
 val LightColorScheme = lightColorScheme(

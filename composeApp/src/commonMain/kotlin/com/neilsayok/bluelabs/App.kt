@@ -9,6 +9,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +21,8 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.neilsayok.bluelabs.common.ui.appbar.MainAppBar
+import com.neilsayok.bluelabs.common.ui.LocalEditorialDark
+import com.neilsayok.bluelabs.common.ui.LocalEditorialNavigation
 import com.neilsayok.bluelabs.common.ui.components.LoaderScaffold
 import com.neilsayok.bluelabs.data.bloglist.FirebaseResponse
 import com.neilsayok.bluelabs.data.documents.BlogFields
@@ -108,6 +111,10 @@ fun App(root: RootComponent) {
         }
     }
     BlueLabsTheme(darkTheme = isDark) {
+        CompositionLocalProvider(
+            LocalEditorialDark provides isDark,
+            LocalEditorialNavigation provides root::onNavigationEvent
+        ) {
         LoaderScaffold(
             isLoading = isLoading && currentScreen != RootComponent.Configuration.MeScreen,
             snackbarHost = {
@@ -146,6 +153,7 @@ fun App(root: RootComponent) {
                     }
                 }
             }
+        }
         }
     }
 }

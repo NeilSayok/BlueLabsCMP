@@ -1,18 +1,22 @@
 package com.neilsayok.bluelabs.pages.indexer.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.NorthEast
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetValue
@@ -31,11 +35,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.neilsayok.bluelabs.common.ui.EditorialFooter
 import com.neilsayok.bluelabs.domain.util.Response
 import com.neilsayok.bluelabs.pages.indexer.component.IndexerComponent
 import kotlinx.coroutines.launch
@@ -45,158 +51,120 @@ import kotlinx.coroutines.launch
 fun IndexerScreen(component: IndexerComponent) {
     val state by component.uiState.subscribeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-    val bottomSheetScaffoldState =
-        rememberBottomSheetScaffoldState(rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false))
-
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberBottomSheetScaffoldState(rememberStandardBottomSheetState(
+        initialValue = SheetValue.Hidden, skipHiddenState = false))
     var password by remember { mutableStateOf("") }
     var resultMessage by remember { mutableStateOf<String?>(null) }
     var shouldHideSheet by remember { mutableStateOf(false) }
-
-    // Handle snackbar display
     LaunchedEffect(resultMessage) {
-        resultMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            resultMessage = null
-        }
+        resultMessage?.let { snackbarHostState.showSnackbar(it); resultMessage = null }
     }
-
-    // Handle bottom sheet hiding
     LaunchedEffect(shouldHideSheet) {
         if (shouldHideSheet) {
-            bottomSheetScaffoldState.bottomSheetState.hide()
+            sheetState.bottomSheetState.hide()
             password = ""
             shouldHideSheet = false
         }
     }
-
     BottomSheetScaffold(
-        scaffoldState = bottomSheetScaffoldState,
+        scaffoldState = sheetState,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         sheetPeekHeight = 0.dp,
         sheetContent = {
-            // Password Bottom Sheet Content
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Enter Password",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                Text(
-                    text = "Please enter your password to generate the index:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 24.dp)
-                )
-
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    TextButton(
-                        onClick = {
+            Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                Text("Generate index", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text("Enter your administrator password to continue.")
+                OutlinedTextField(password, { password = it }, label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    TextButton(onClick = { shouldHideSheet = true }, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                    Button(onClick = {
+                        scope.launch {
+                            component.handleSubmit(password) { _, message -> resultMessage = message }
                             shouldHideSheet = true
-                        }, modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Cancel")
-                    }
-
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                component.handleSubmit(password) { success, message ->
-                                    resultMessage = message
-                                }
-                                shouldHideSheet = true
-                            }
-                        }, enabled = password.isNotBlank(), modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Generate")
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }) { paddingValues ->
-        Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Blog Index Generator",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                if (state.isLoading) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Loading data...", style = MaterialTheme.typography.bodyMedium
-                    )
-                } else {
-                    // Show data status
-                    val blogCount =
-                        (state.blogResponse as? Response.SuccessResponse)?.data?.documents?.size
-                            ?: 0
-                    val authorCount =
-                        (state.authorResponse as? Response.SuccessResponse)?.data?.documents?.size
-                            ?: 0
-
-                    Text(
-                        text = "Loaded: $blogCount blogs, $authorCount authors",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    if (state.error != null) {
-                        Text(
-                            text = "OOPS Something went wrong: ${state.error}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.expand()
-                            }
-                        },
-                        enabled = state.blogResponse is Response.SuccessResponse && state.authorResponse is Response.SuccessResponse,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Generate Index")
-                    }
+                        }
+                    }, enabled = password.isNotBlank(), shape = RectangleShape,
+                        modifier = Modifier.weight(1f)) { Text("Generate") }
                 }
             }
         }
+    ) { paddingValues ->
+        BoxWithConstraints(Modifier.fillMaxSize().padding(paddingValues)) {
+            val compact = maxWidth < 800.dp
+            val horizontal = if (compact) 20.dp else 64.dp
+            val blogCount = (state.blogResponse as? Response.SuccessResponse)?.data?.documents?.size ?: 0
+            val authorCount = (state.authorResponse as? Response.SuccessResponse)?.data?.documents?.size ?: 0
+            LazyColumn(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                item {
+                    Column(Modifier.widthIn(max = 1100.dp).fillMaxWidth().padding(horizontal = horizontal, vertical = 45.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text("Blog index generator", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Medium)
+                        Text("Keep the journal’s search content up to date.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                item {
+                    Column(Modifier.widthIn(max = 1100.dp).fillMaxWidth().padding(horizontal = horizontal),
+                        verticalArrangement = Arrangement.spacedBy(28.dp)) {
+                        if (state.isLoading) {
+                            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant).padding(24.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                CircularProgressIndicator()
+                                Text("Loading index data…")
+                            }
+                        } else {
+                            Text("The index uses the published articles and authors currently loaded.",
+                                modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.primaryContainer).padding(20.dp))
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Stat("Blogs loaded", blogCount, Modifier.weight(1f))
+                                Stat("Authors loaded", authorCount, Modifier.weight(1f))
+                            }
+                            if (state.error != null) {
+                                Text("Index data couldn’t load: ${state.error}", color = MaterialTheme.colorScheme.error)
+                            }
+                            val ready: @Composable () -> Unit = {
+                                Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(28.dp),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                    Text("Ready to generate", style = MaterialTheme.typography.headlineSmall)
+                                    Text("The index includes published article text, tags, titles, authors, and URLs.")
+                                    Text("• Reads article Markdown from GitHub\n• Converts content to searchable text\n• Updates the stored search index")
+                                    Button(onClick = { scope.launch { sheetState.bottomSheetState.expand() } },
+                                        enabled = state.blogResponse is Response.SuccessResponse && state.authorResponse is Response.SuccessResponse,
+                                        shape = RectangleShape) {
+                                        Text("Generate index")
+                                        Icon(Icons.Default.NorthEast, null, Modifier.padding(start = 8.dp))
+                                    }
+                                }
+                            }
+                            val authorisation: @Composable () -> Unit = {
+                                Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(28.dp),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                                    Text("Authorisation", style = MaterialTheme.typography.headlineSmall)
+                                    Text("Your administrator password is requested before generation.")
+                                }
+                            }
+                            if (compact) {
+                                Column(verticalArrangement = Arrangement.spacedBy(24.dp)) { ready(); authorisation() }
+                            } else {
+                                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                    Column(Modifier.weight(2f)) { ready() }
+                                    Column(Modifier.weight(1f)) { authorisation() }
+                                }
+                            }
+                        }
+                    }
+                }
+                item { Column(Modifier.padding(top = 80.dp)) { EditorialFooter() } }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Stat(label: String, value: Int, modifier: Modifier) {
+    Column(modifier.background(MaterialTheme.colorScheme.surfaceVariant).padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(label, style = MaterialTheme.typography.bodySmall)
+        Text(value.toString(), fontSize = 36.sp)
     }
 }

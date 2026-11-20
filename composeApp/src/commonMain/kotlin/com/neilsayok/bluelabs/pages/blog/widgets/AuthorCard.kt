@@ -3,10 +3,12 @@ package com.neilsayok.bluelabs.pages.blog.widgets
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,8 +52,9 @@ fun AuthorCardPreview() {
 
 @Composable
 fun AuthorCard(author: AuthorLoadedData?, postedOn: String?) {
-    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Card(modifier = Modifier.size(38.dp), shape = CircleShape) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Card(modifier = Modifier.size(34.dp), shape = CircleShape,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
             AsyncImage(
                 model = author?.imgUrl?.stringValue ?: DEFAULT_IMAGE_SQUARE,
                 contentDescription = null,
@@ -59,17 +62,16 @@ fun AuthorCard(author: AuthorLoadedData?, postedOn: String?) {
             )
         }
 
-        Spacer(modifier = Modifier.size(8.dp))
-
         Column {
             Text(
-                "${author?.name?.stringValue}".uppercase(),
-                style = MaterialTheme.typography.bodyMedium
+                author?.name?.stringValue ?: "Blue Labs",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                "Posted On: ${postedOn?.toReadableDate()}",
-                fontWeight = FontWeight.Thin,
-                style = MaterialTheme.typography.bodySmall
+                postedOn?.toReadableDate() ?: "",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
 
             )
         }
